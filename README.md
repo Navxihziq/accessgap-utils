@@ -22,7 +22,7 @@ pip install git+https://github.com/Navxihziq/accessgap-utils.git
 from accessgap_utils import get_points_from_polygon
 
 ri = osmnx.features_from_place('Roosevelt Island, NYC', tags={'place': 'island'})
-ri_polygon = gpd.GeoSeries.from_wkt(ri.geometry.iloc[0])
+ri_polygon = ri.geometry.iloc[0]
 features = get_points_from_polygon(ri_polygon)
 ```
 
