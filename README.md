@@ -4,16 +4,12 @@ Utility functions for Urban Access Gap Project.
 
 ## Installation
 
-You can install this package from GitHub using `pip`:
+You can install this package from GitHub using `pip`. However, due to current issues with wheel dependencies, it's recommended to install the required packages separately before installing the main package.
 
-Currently having trouble with wheel dependencies. So for now, install the package separately.
-
-```bash
-pip install osmnx pandas geopandas
-```
+First, install the necessary dependencies, and then install the main package:
 
 ```bash
-pip install git+https://github.com/Navxihziq/accessgap-utils.git
+pip install osmnx pandas geopandas git+https://github.com/Navxihziq/accessgap-utils.git
 ```
 
 ## Usage
