@@ -1,6 +1,6 @@
 # AccessGap Utils
 
-Utility functions for Urban Access Gap Project.
+Utility function(s) for Urban Access Gap Project.
 
 ## Installation
 
@@ -20,6 +20,17 @@ from accessgap_utils import get_points_from_polygon
 ri = osmnx.features_from_place('Roosevelt Island, NYC', tags={'place': 'island'})
 ri_polygon = ri.geometry.iloc[0]
 features = get_points_from_polygon(ri_polygon)
+```
+
+### Specifying date for historical (attic) data
+
+```python
+from accessgap_utils import get_points_from_polygon
+from datetime import datetime
+
+ri = osmnx.features_from_place('Roosevelt Island, NYC', tags={'place': 'island'})
+ri_polygon = ri.geometry.iloc[0]
+features = get_points_from_polygon(ri_polygon, date=datetime(2019, 3, 9))
 ```
 
 ## Development
