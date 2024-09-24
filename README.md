@@ -3,6 +3,7 @@
 Utility functions for Urban Access Gap Project.
 
 ## Installation
+
 You can install this package from GitHub using `pip`:
 
 ```bash
@@ -17,3 +18,5 @@ from accessgap_utils import get_points_from_polygon
 polygon = gpd.read_file("path/to/polygon.geojson")
 features = get_points_from_polygon(polygon)
 ```
+
+## Development
