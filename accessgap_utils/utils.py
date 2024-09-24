@@ -40,7 +40,7 @@ def all_points_gdf(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
-def get_points_from_polygon(
+def pois_from_polygon(
     polygon: MultiPolygon | Polygon,
     tags: dict[str, str] | None = None,
     date: datetime | None = None,

@@ -8,7 +8,7 @@ import pytest
 # Add the parent directory to sys.path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from accessgap_utils import get_points_from_polygon
+from accessgap_utils import pois_from_polygon
 
 
 def assert_non_empty_gdf(gdf: gpd.GeoDataFrame) -> None:
@@ -37,5 +37,5 @@ def test_datetime() -> None:
     polygon = ox.features_from_place(
         "Roosevelt Island, New York", tags={"place": "island"}
     ).geometry.iloc[0]
-    gdf = get_points_from_polygon(polygon, date=date, cache=False)
+    gdf = pois_from_polygon(polygon, date=date, cache=False)
     assert_non_empty_gdf(gdf)

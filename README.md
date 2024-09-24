@@ -15,22 +15,22 @@ pip install osmnx pandas geopandas git+https://github.com/Navxihziq/accessgap-ut
 ## Usage
 
 ```python
-from accessgap_utils import get_points_from_polygon
+from accessgap_utils import pois_from_polygon
 
 ri = osmnx.features_from_place('Roosevelt Island, NYC', tags={'place': 'island'})
 ri_polygon = ri.geometry.iloc[0]
-features = get_points_from_polygon(ri_polygon)
+features = pois_from_polygon(ri_polygon)
 ```
 
 ### Specifying date for historical (attic) data
 
 ```python
-from accessgap_utils import get_points_from_polygon
+from accessgap_utils import pois_from_polygon
 from datetime import datetime
 
 ri = osmnx.features_from_place('Roosevelt Island, NYC', tags={'place': 'island'})
 ri_polygon = ri.geometry.iloc[0]
-features = get_points_from_polygon(ri_polygon, date=datetime(2019, 3, 9))
+features = pois_from_polygon(ri_polygon, date=datetime(2019, 3, 9))
 ```
 
 ## Development
