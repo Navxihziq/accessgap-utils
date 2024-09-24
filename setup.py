@@ -14,4 +14,7 @@ setup(
     url="https://github.com/Navxihziq/accessgap-utils",
     classifiers=[],
     python_requires=">=3.6",
+    extras_require={
+        "dev": ["pytest", "black", "flake8", "mypy"],
+    },
 )
