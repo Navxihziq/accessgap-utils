@@ -2,6 +2,12 @@
 requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.pytest.ini_options]
+markers = [
+    "osmnx_installation: marks tests that require OSMnx installation",
+    "datetime: marks tests that involve datetime functionality"
+]
+
 [project]
 name = "accessgap-utils"
 version = "0.1.0"
