@@ -12,10 +12,6 @@ setup(
         "shapely",
     ],
     url="https://github.com/Navxihziq/accessgap-utils",
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
+    classifiers=[],
     python_requires=">=3.6",
 )
