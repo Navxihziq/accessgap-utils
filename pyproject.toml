@@ -5,6 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "accessgap-utils"
 version = "0.1.0"
+dependencies = [
+    "geopandas>=0.14.4",
+    "osmnx>=1.9.4",
+    "pandas>=2.2.3",
+    "pyproj>=3.6.1",
+    "shapely>=2.0.6",
+]
 
 [tool.pyright]
 include = ["**/accessgap_utils"]
