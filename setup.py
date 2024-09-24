@@ -4,13 +4,6 @@ setup(
     name="accessgap-utils",
     version="0.1.0",
     packages=find_packages(),
-    install_requires=[
-        "geopandas",
-        "osmnx",
-        "pandas",
-        "pyproj",
-        "shapely",
-    ],
     author="Zhixuan Qi",
     author_email="zhixuanqi@outlook.com",
     description="Utility functions for Urban Access Gap Project",
