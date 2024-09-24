@@ -5,3 +5,71 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "accessgap-utils"
 version = "0.1.0"
+
+exclude = [
+    ".git",
+    "__pycache__",
+    "**/docs/slides/*",
+    "old,build",
+    "dist",
+    "**/project/**/*",
+    "**/mt_diagrams/*",
+    "**/minitorch/testing.py",
+    "**/docs/**/*",
+]
+
+select = ["D", "E", "F", "N", "ANN"]
+fixable = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "I",
+    "N",
+    "Q",
+    "S",
+    "T",
+    "W",
+    "ANN",
+    "ARG",
+    "BLE",
+    "COM",
+    "DJ",
+    "DTZ",
+    "EM",
+    "ERA",
+    "EXE",
+    "FBT",
+    "ICN",
+    "INP",
+    "ISC",
+    "NPY",
+    "PD",
+    "PGH",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "PYI",
+    "RET",
+    "RSE",
+    "RUF",
+    "SIM",
+    "SLF",
+    "TCH",
+    "TID",
+    "TRY",
+    "UP",
+    "YTT",
+]
+unfixable = []
+
+[tool.ruff]
+line-length = 88
+
+
+[tool.ruff.extend-per-file-ignores]
+"tests/*.py" = ["D"]
