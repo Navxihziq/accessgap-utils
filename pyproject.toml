@@ -1,0 +1,125 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "accessgap-utils"
+version = "0.1.0"
+
+[tool.pyright]
+include = ["**/accessgap_utils"]
+ignore = [
+    "**/docs",
+    "**/tests",
+    "**/.*",
+]
+
+venvPath = "."
+venv = ".venv"
+reportUnknownMemberType = "warning"
+reportUnknownParameterType = "warning"
+reportUnknownArgumentType = "warning"
+reportUnknownVariableType = "warning"
+reportMissingTypeArgument = "warning"
+reportMissingTypeStubs = "warning"
+reportUnusedExpression = "warning"
+reportUnknownLambdaType = "warning"
+reportIncompatibleMethodOverride = "warning"
+reportPrivateUsage = "warning"
+reportMissingParameterType = "error"
+
+
+[tool.pytest.ini_options]
+markers = [
+    "osmnx_installation: test osmnx installation",
+    "datetime: test datetime functionality"
+]
+
+[tool.ruff]
+exclude = [
+    ".git",
+    "__pycache__",
+    "**/docs/slides/*",
+    "old,build",
+    "dist",
+    "**/project/**/*",
+    "**/mt_diagrams/*",
+    "**/minitorch/testing.py",
+    "**/docs/**/*",
+]
+
+ignore = [
+    "ANN101",
+    "ANN401",
+    "N801",
+    "E203",
+    "E266",
+    "E501",
+    "E741",
+    "N803",
+    "N802",
+    "N806",
+    "D400",
+    "D401",
+    "D105",
+    "D415",
+    "D402",
+    "D205",
+    "D100",
+    "D101",
+    "D107",
+    "D213",
+    "ANN204",
+    "ANN102",
+]
+select = ["D", "E", "F", "N", "ANN"]
+fixable = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "I",
+    "N",
+    "Q",
+    "S",
+    "T",
+    "W",
+    "ANN",
+    "ARG",
+    "BLE",
+    "COM",
+    "DJ",
+    "DTZ",
+    "EM",
+    "ERA",
+    "EXE",
+    "FBT",
+    "ICN",
+    "INP",
+    "ISC",
+    "NPY",
+    "PD",
+    "PGH",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "PYI",
+    "RET",
+    "RSE",
+    "RUF",
+    "SIM",
+    "SLF",
+    "TCH",
+    "TID",
+    "TRY",
+    "UP",
+    "YTT",
+]
+unfixable = []
+
+[tool.ruff.extend-per-file-ignores]
+"tests/*.py" = ["D"]
