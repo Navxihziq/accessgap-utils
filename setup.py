@@ -1,8 +1,17 @@
 from setuptools import find_packages, setup
 
+
 # Read requirements from requirements.txt
-with open("requirements.txt") as f:
-    requirements = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+def parse_requirements(filename: str) -> list[str]:
+    """Parse requirements from a file."""
+    with open(filename, "r") as f:
+        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+try:
+    requirements = parse_requirements("requirements.txt")
+except Exception as e:
+    print(f"Warning: Could not parse requirements.txt: {e}")
+    requirements = []
 
 setup(
     name="accessgap-utils",
