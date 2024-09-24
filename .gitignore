@@ -101,3 +101,6 @@ coverage/
 *.launch
 .settings/
 *.sublime-workspace
+
+# OSMnx cache
+/cache/
