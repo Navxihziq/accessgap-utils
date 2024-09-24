@@ -5,8 +5,11 @@ build-backend = "setuptools.build_meta"
 [tool.pytest.ini_options]
 markers = [
     "osmnx_installation: marks tests that require OSMnx installation",
-    "datetime: marks tests that involve datetime functionality"
+    "datetime: marks tests that involve datetime functionality",
+    "overpass_coordstr: marks tests that involve OverpassFilter.__str__ method",
+    "overpass_query: marks tests that involve OverpassQuery.__str__ method",
 ]
+testpaths = ["test"]
 
 [project]
 name = "accessgap-utils"
