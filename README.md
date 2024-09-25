@@ -1,6 +1,11 @@
 # AccessGap Utils
 
-Utility function(s) for Urban Access Gap Project.
+This package primarily serves as an `Overpy` wrapper, facilitating queries for OSM objects based on a given polygon and additional optional parameters.
+
+Reasons for choosing `Overpy` over `OSMnx`:
+
+1. Support for regular expressions.
+2. (Potential) Support for historical (attic) data retrieval.
 
 ## Installation
 
