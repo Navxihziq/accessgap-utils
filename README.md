@@ -19,55 +19,92 @@ pip install git+https://github.com/Navxihziq/accessgap-utils.git
 
 ## Usage
 
-```python
-from accessgap_utils import OverpassQuery
+Here we use `Roosevelt Island` as an example polygon. To get the `MultiPolygon` object, we can use the `features_from_place` function from `OSMnx`.
 
-polygon = MultiPolygon([Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])])
-query = OverpassQuery(polygon)
-query.request()
+```python
+from osmnx import features_from_place
+
+polygon = features_from_place("Roosevelt Island, New York, USA", tags={"place": "island"}).geometry.iloc[0]
+```
+
+```python
+>>> from accessgap_utils import OverpassQuery
+
+>>> query = OverpassQuery(polygon)
+>>> results = query.request()
+>>> len(results.nodes)
+    6901
+
+>>> results.nodes[0].tags
+    {'amenity': 'restaurant',
+      'cuisine': 'japanese',
+      'name': 'Fuji East Restaurant',
+      'opening_hours': 'Mo-Su 11:00-23:00',
+      'outdoor_seating': 'yes'}
 ```
 
 ### Query with tags (filter clauses)
 
 ```python
-from accessgap_utils import OverpassQuery
-
-polygon = MultiPolygon([Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])])
-query = OverpassQuery(polygon, tags=["[amenity=restaurant]", "[amenity=bar]"])
-query.request()
+>>> query = OverpassQuery(polygon, tags=["[amenity=restaurant]", "[amenity=bench]"])
+>>> results = query.request()
+>>> nodes = results.nodes
+>>> len(nodes)
+    65
+>>> nodes[0].tags
+    {'amenity': 'restaurant',
+    'cuisine': 'japanese',
+    'name': 'Fuji East Restaurant',
+    'opening_hours': 'Mo-Su 11:00-23:00',
+    'outdoor_seating': 'yes'}
+>>> nodes[10].tags
+    {'amenity': 'bench'}
 ```
 
 By default, the query will return all objects that match **any filter clause** in the list.
 The optional `tags` parameter can be a list of clause strings or a single string. Any valid Overpass clause can be passed here, including regular expressions. With clever use of syntax, recursive queries can be constructed. However, please be cautious, as you are responsible for the correctness of the query.
 
 ```python
-# regex
-from accessgap_utils import OverpassQuery
+# multiple tags for AND
+>>> query = OverpassQuery(polygon, tags=["[amenity=restaurant][cuisine=italian]"])
+>>> results = query.request() # sanity check: only one pizza place on the island
+>>> len(results.nodes)  # yay!
+    1
+>>> results.nodes[0].tags
+    {'addr:housenumber': '455',
+    'addr:street': 'Main Street',
+    'amenity': 'restaurant',
+    'cuisine': 'italian',
+    'diet:vegetarian': 'yes',
+    'drink:beer': 'yes',
+    'drink:wine': 'yes',
+    'name': 'Piccolo Trattoria',
+    'outdoor_seating': 'yes',
+    'phone': '+1 212-753-2300',
+    'takeaway': 'yes'}
+```
 
-polygon = MultiPolygon([Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])])
-tags = ['[amenity~"restaurant"]', '[amenity~"bar"]']
-query = OverpassQuery(polygon, tags=tags)
+However, there is an important caveat: when you specify multiple attributes for the same key, the query will return objects that match **any** of the attributes instead of **all** of them. This behavior may not be intuitive, as it doesn't align with logical expectations. For instance, in the context of OpenStreetMap (OSM), a place typically cannot be both a restaurant and a bar simultaneously.
 
-# returns all objects in the polygon that **either**:
-# 1. have `restaurant` in the `amenity` field (not necessarily ['amenity'='restaurant']).
-# 2. have `bar` in the `amenity` field (not necessarily ['amenity'='bar']).
-
-query.request()
+```python
+# multiple tags for AND
+>>> query = OverpassQuery(polygon, tags=["[amenity=restaurant][amenity=bench]"])
+>>> results = query.request()
+>>> len(results.nodes)
+    63
 ```
 
 ```python
-# recurse up
-from accessgap_utils import OverpassQuery
-
-polygon = MultiPolygon([Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])])
-tags = "['power=tower']->.search" # recurse up
-query = OverpassQuery(polygon, tags=tags)
-
-# returns all objects that:
-# 1. have `power=tower` in the `power` field and is in the polygon.
-# 2. are connected to the objects in (1) but not necessarily in the polygon.
-
-query.request()
+# regex
+>>> tags = ['[amenity~e]']
+>>> query = OverpassQuery(polygon, tags=tags)
+>>> # returns all objects in the polygon that **either**:
+>>> # 1. have `e` in the `amenity` field (not necessarily ['amenity'='e']).
+>>> rst = query.request()
+>>> len(rst.nodes)
+    102
+>>> rst.nodes[10].tags
+   {'amenity': 'vending_machine', 'fee': 'no', 'vending': 'excrement_bags'}
 ```
 
 ## Development
