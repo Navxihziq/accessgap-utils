@@ -1,6 +1,5 @@
-"""Utility functions for Urban Access Gap Project"""
+"""Utility functions for Urban Access Gap Project."""
 
-from .query import OverpassQuery
-from .utils import pois_from_polygon
+from .query import OverpassQuery, QueryBody, QueryPreamble
 
-__all__ = ["pois_from_polygon", "OverpassQuery"]
+__all__ = ["OverpassQuery", "QueryBody", "QueryPreamble"]

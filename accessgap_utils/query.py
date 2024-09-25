@@ -1,3 +1,5 @@
+"""A module of classes for building Overpass API queries."""
+
 from datetime import datetime
 
 from overpy import Overpass, Result
@@ -5,21 +7,20 @@ from shapely.geometry import MultiPolygon, Polygon
 
 
 class QueryBody:
+    """A class for building the body of an Overpass API query."""
+
     def __init__(
         self,
         polygon: MultiPolygon | Polygon,
         tags: list[str] | str | None = None,
-    ):
-        """
-        Args:
-            polygon: The polygon to query.
-            tags: The tags to query. Returns the union of all objects that match any of the tags.
-        """
+    ) -> None:
         self.polygon = polygon
         self.poly_clause = f"poly:'{self.polygon_coords_str()}'"
         self.tags = [tags] if isinstance(tags, str) else tags
 
     def query(self) -> str:
+        """Build the query body."""
+
         def nwr_clause(tag_clause: str) -> str:
             return f"node{tag_clause}({self.poly_clause});way{tag_clause}({self.poly_clause});relation{tag_clause}({self.poly_clause});"
 
@@ -33,6 +34,7 @@ class QueryBody:
         return "(" + "\n".join(query) + ");"
 
     def polygon_coords_str(self) -> str:
+        """Convert the polygon to a string of coordinates."""
         # convex hull
         assert isinstance(self.polygon, MultiPolygon | Polygon)
         hull = MultiPolygon([self.polygon.convex_hull])
@@ -68,6 +70,26 @@ class QueryPreamble:
 
 
 class OverpassQuery:
+    """A class for building and sending Overpass API queries.
+
+    Args:
+        polygon (MultiPolygon | Polygon): The polygon to query.
+        tags (list[str] | str | None): Optional. The tags to query. Returns OSM objects that match any tag in the list.
+        timeout (int | None): Optional. The timeout for the query in seconds.
+        maxsize (int | None): Optional. The maximum size for the query response in bytes.
+        date (datetime | None): Optional. The date for attic (historical) data retrieval.
+
+    Examples:
+        >>> from accessgap_utils import OverpassQuery
+        >>> from datetime import datetime
+        >>> polygon = MultiPolygon([Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])])
+        >>> query = OverpassQuery(polygon, tags=["amenity=restaurant"], date=datetime(2022, 1, 1))
+        >>> print(query.query())
+        >>> result = query.request()
+        >>> print(result)
+
+    """
+
     def __init__(
         self,
         polygon: MultiPolygon | Polygon,
@@ -81,9 +103,11 @@ class OverpassQuery:
         self.epilogue = "out body;"
 
     def query(self) -> str:
+        """Build the query."""
         parts = [self.preamble.query(), self.body.query(), self.epilogue]
         return "".join(parts)
 
     def request(self) -> Result:
+        """Send the query to the Overpass API."""
         api = Overpass()
         return api.query(self.query())

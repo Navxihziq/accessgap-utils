@@ -9,7 +9,7 @@ markers = [
 
 [project]
 name = "accessgap-utils"
-version = "0.1.0"
+version = "0.2.0"
 # Add other project metadata here (e.g., description, authors, dependencies)
 
 [tool.ruff]
