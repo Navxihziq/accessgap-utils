@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING
 
 import geopandas as gpd
 import osmnx as ox
-import overpy
 from shapely.geometry import MultiPolygon, Polygon
+
+from accessgap_utils.query import OverpassQuery
 
 if TYPE_CHECKING:
     from osmnx.settings import Settings
@@ -99,96 +100,11 @@ def pois_from_polygon(
     return gdf
 
 
-class OverpassClause:
-    def __init__(self):
-        pass
-
-    def __str__(self):
-        return self.clause
-
-
-class OverpassPreamble:
-    def __init__(
-        self,
-        timeout: int | None = None,
-        maxsize: int = None,
-        date: datetime | None = None,
-    ):
-        self.out_format = "json"
-        self.timeout = timeout
-        self.maxsize = maxsize
-        self.date = date
-
-    def __str__(self):
-        parts = [f"[out:{self.out_format}]"]
-        if self.timeout is not None:
-            parts.append(f"[timeout:{self.timeout}]")
-        if self.maxsize is not None:
-            parts.append(f"[maxsize:{self.maxsize}]")
-        if self.date is not None:
-            parts.append(f"[date:'{self.date.strftime('%Y-%m-%dT%H:%M:%SZ')}']")
-        return "".join(parts) + ";"
-
-    def query(self) -> str:
-        return str(self)
-
-
-class OverpassFilter:
-    def __init__(
-        self, polygon: MultiPolygon | Polygon, tags: dict[str, str] | None = None
-    ):
-        self.polygon = polygon
-        self.tags = tags
-
-        self._poly_clause = f"poly:'{self.polygon_coords_str()}'"
-
-    def polygon_coords_str(self) -> str:
-        # convex hull
-        assert isinstance(self.polygon, MultiPolygon | Polygon)
-        hull = MultiPolygon([self.polygon.convex_hull])
-        coords = []
-        for geom in hull.geoms:
-            x, y = geom.exterior.xy
-            coord_ls = [f"{y:.6f} {x:.6f}" for x, y in zip(x, y)]
-            coords.append(" ".join(coord_ls))
-
-        return " ".join(coords)
-
-    def __str__(self):
-        node_str = f"node({self._poly_clause});"
-        way_str = f"way({self._poly_clause});"
-        relation_str = f"relation({self._poly_clause});"
-        return f"({node_str} {way_str} {relation_str})"
-
-    def query(self) -> str:
-        return str(self)
-
-
-class OverpassQuery:
-    def __init__(
-        self,
-        polygon: MultiPolygon | Polygon,
-        tags: dict[str, str] | None = None,
-        timeout: int | None = None,
-        maxsize: int | None = None,
-        date: datetime | None = None,
-    ):
-        self.preamble = OverpassPreamble(timeout, maxsize, date)
-        self.filter = OverpassFilter(polygon, tags)
-        self.epilogue = "out body;"
-
-    def __str__(self):
-        parts = [str(self.preamble), str(self.filter), self.epilogue]
-        return " ".join(parts)
-
-
-def overpy_alternative(
+def overpass_query(
     polygon: MultiPolygon | Polygon,
     tags: dict[str, str] | None = None,
+    timeout: int | None = None,
+    maxsize: int | None = None,
     date: datetime | None = None,
-) -> gpd.GeoDataFrame:
-    """Alternative to osmnx.features_from_polygon using the overpy library."""
-    api = overpy.Overpass()
-    query = OverpassQuery(polygon, tags, date)
-    result = api.query(query.query())
-    return result
+) -> str:
+    return OverpassQuery(polygon, tags, timeout, maxsize, date)

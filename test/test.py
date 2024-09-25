@@ -5,12 +5,12 @@ from pathlib import Path
 import geopandas as gpd
 import osmnx as ox
 import pytest
-from shapely.geometry import Polygon
+from strategy import GREENPOINT, GREENPOINT_POLY_CLAUSE
 
-# Add the parent directory to sys.path
+# Add the parent directory to sys.path to make accessgap_utils visible
 sys.path.append(str(Path(__file__).parent.parent))
 
-from accessgap_utils import OverpassFilter, OverpassQuery, pois_from_polygon
+from accessgap_utils import OverpassQuery
 
 
 def assert_non_empty_gdf(gdf: gpd.GeoDataFrame) -> None:
@@ -29,53 +29,48 @@ def test_osmnx_installation() -> None:
     assert_non_empty_gdf(gdf)
 
 
-@pytest.mark.datetime
-def test_datetime() -> None:
-    """Test if the datetime is working correctly"""
-    from datetime import datetime
-
-    date = datetime(2017, 3, 9)
-    # get the polygon of the island
-    polygon = ox.features_from_place(
-        "Roosevelt Island, New York", tags={"place": "island"}
-    ).geometry.iloc[0]
-    gdf = pois_from_polygon(polygon, date=date, cache=False)
-    assert_non_empty_gdf(gdf)
+@pytest.mark.query_building
+def test_preamble_date() -> None:
+    """Test if the preamble is working correctly"""
+    polygon = GREENPOINT
+    date = datetime(2019, 3, 9)
+    query = OverpassQuery(polygon, date=date)
+    ground_truth = f"""[out:json][date:"{date.strftime('%Y-%m-%dT%H:%M:%SZ')}"];(node{GREENPOINT_POLY_CLAUSE};way{GREENPOINT_POLY_CLAUSE};relation{GREENPOINT_POLY_CLAUSE};);out body;"""
+    assert query.query().replace("\n", "") == ground_truth.replace("\n", "")
 
 
-@pytest.mark.overpass_coordstr
-def test_overpass_coordstr() -> None:
-    """Test if the OverpassFilter.__str__ method is working correctly"""
-    polygon = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-    filter = OverpassFilter(polygon)
-    assert (
-        filter.polygon_coords_str()
-        == "0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000"
+@pytest.mark.query_building
+def test_query_body() -> None:
+    """Test if the query body is working correctly"""
+    polygon = GREENPOINT
+    date = datetime(2019, 3, 9)
+    query = OverpassQuery(polygon, date=date, tags="['amenity'='restaurant']")
+    ground_truth = f"""[out:json][date:"{date.strftime('%Y-%m-%dT%H:%M:%SZ')}"];(node['amenity'='restaurant']{GREENPOINT_POLY_CLAUSE};way['amenity'='restaurant']{GREENPOINT_POLY_CLAUSE};relation['amenity'='restaurant']{GREENPOINT_POLY_CLAUSE};);out body;"""
+    assert query.query().replace("\n", "") == ground_truth.replace("\n", "")
+
+
+@pytest.mark.query_building
+def test_query_body_multiple_tags() -> None:
+    """Test if the query body is working correctly with multiple tags"""
+    polygon = GREENPOINT
+    date = datetime(2019, 3, 9)
+    query = OverpassQuery(
+        polygon, date=date, tags=["['amenity'='restaurant']", "['amenity'='bar']"]
     )
+    ground_truth = f"""[out:json][date:"{date.strftime('%Y-%m-%dT%H:%M:%SZ')}"];(node['amenity'='restaurant']{GREENPOINT_POLY_CLAUSE};way['amenity'='restaurant']{GREENPOINT_POLY_CLAUSE};relation['amenity'='restaurant']{GREENPOINT_POLY_CLAUSE};node['amenity'='bar']{GREENPOINT_POLY_CLAUSE};way['amenity'='bar']{GREENPOINT_POLY_CLAUSE};relation['amenity'='bar']{GREENPOINT_POLY_CLAUSE};);out body;"""
+    assert query.query().replace("\n", "") == ground_truth.replace("\n", "")
 
 
-@pytest.mark.overpass_query
-def test_overpass_query() -> None:
-    """Test if the OverpassQuery.__str__ method is working correctly"""
-    polygon = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-    query = OverpassQuery(polygon)
-    assert (
-        str(query)
-        == "[out:json]; (node(poly:'0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000'); "
-        "way(poly:'0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000'); "
-        "relation(poly:'0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000');) out body;"
-    )
+@pytest.mark.query_rst
+def test_query_rst() -> None:
+    """Test if the query rst is working correctly"""
+    polygon = GREENPOINT
+    query = OverpassQuery(polygon, tags="['amenity'='restaurant']")
+    print(query.query())
+    result = query.request()
 
-
-@pytest.mark.overpass_query
-def test_overpass_preamble() -> None:
-    """Test if the OverpassQuery.__str__ method is working correctly"""
-    polygon = Polygon([(0, 0), (0, 1), (1, 1), (1, 0)])
-    query = OverpassQuery(polygon, timeout=10, maxsize=10000, date=datetime(2017, 3, 9))
-    assert (
-        str(query)
-        == "[out:json][timeout:10][maxsize:10000][date:'2017-03-09T00:00:00Z']; (node(poly:'0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000'); "
-        "way(poly:'0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000'); "
-        "relation(poly:'0.000000 0.000000 1.000000 0.000000 1.000000 1.000000 0.000000 1.000000 0.000000 0.000000');) out body;"
-    )
-
+    # osmnx
+    ox.settings.use_cache = False
+    gdf = ox.features_from_polygon(GREENPOINT, tags={"amenity": "restaurant"})
+    assert len(gdf.loc["node"]) == len(result.nodes)
+    assert len(gdf.loc["way"]) == len(result.ways)
