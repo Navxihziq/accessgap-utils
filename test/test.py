@@ -80,7 +80,7 @@ def test_query_rst() -> None:
 def test_quick_tags() -> None:
     """Test if the quick tags are working correctly."""
     polygon = GREENPOINT
-    query = OverpassQuery(polygon, quick_tags="RESTAURANT")
+    query = OverpassQuery(polygon, quick_tags="ALL_FOOD")
     result = query.request()
     assert len(result.nodes) > 0
     assert len(result.ways) > 0
