@@ -5,11 +5,12 @@ build-backend = "setuptools.build_meta"
 [tool.pytest.ini_options]
 markers = [
     "query_building: marks tests that involve QueryBuilding",
+    "quick_tags: marks tests that involve QuickTags",
 ]
 
 [project]
 name = "accessgap-utils"
-version = "0.2.0"
+version = "0.3.0"
 # Add other project metadata here (e.g., description, authors, dependencies)
 
 [tool.ruff]

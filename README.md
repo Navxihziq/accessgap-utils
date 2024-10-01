@@ -46,7 +46,7 @@ polygon = features_from_place("Roosevelt Island, New York, USA", tags={"place": 
 ### Query with tags (filter clauses)
 
 ```python
->>> query = OverpassQuery(polygon, tags=["[amenity=restaurant]", "[amenity=bench]"])
+>>> query = OverpassQuery(polygon, customized_filters=["[amenity=restaurant]", "[amenity=bench]"])
 >>> results = query.request()
 >>> nodes = results.nodes
 >>> len(nodes)
@@ -66,7 +66,7 @@ The optional `tags` parameter can be a list of clause strings or a single string
 
 ```python
 # multiple tags for AND
->>> query = OverpassQuery(polygon, tags=["[amenity=restaurant][cuisine=italian]"])
+>>> query = OverpassQuery(polygon, customized_filters=["[amenity=restaurant][cuisine=italian]"])
 >>> results = query.request() # sanity check: only one pizza place on the island
 >>> len(results.nodes)  # yay!
     1
@@ -88,7 +88,7 @@ However, there is an important caveat: when you specify multiple attributes for 
 
 ```python
 # multiple tags for AND
->>> query = OverpassQuery(polygon, tags=["[amenity=restaurant][amenity=bench]"])
+>>> query = OverpassQuery(polygon, customized_filters=["[amenity=restaurant][amenity=bench]"])
 >>> results = query.request()
 >>> len(results.nodes)
     63
@@ -97,7 +97,7 @@ However, there is an important caveat: when you specify multiple attributes for 
 ```python
 # regex
 >>> tags = ['[amenity~e]']
->>> query = OverpassQuery(polygon, tags=tags)
+>>> query = OverpassQuery(polygon, customized_filters=tags)
 >>> # returns all objects in the polygon that **either**:
 >>> # 1. have `e` in the `amenity` field (not necessarily ['amenity'='e']).
 >>> rst = query.request()

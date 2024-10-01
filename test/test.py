@@ -74,3 +74,13 @@ def test_query_rst() -> None:
     gdf = ox.features_from_polygon(GREENPOINT, tags={"amenity": "restaurant"})
     assert len(gdf.loc["node"]) == len(result.nodes)
     assert len(gdf.loc["way"]) == len(result.ways)
+
+
+@pytest.mark.quick_tags
+def test_quick_tags() -> None:
+    """Test if the quick tags are working correctly."""
+    polygon = GREENPOINT
+    query = OverpassQuery(polygon, quick_tags="RESTAURANT")
+    result = query.request()
+    assert len(result.nodes) > 0
+    assert len(result.ways) > 0

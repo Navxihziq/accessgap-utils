@@ -1,6 +1,8 @@
 """A module of classes for building Overpass API queries."""
 
 from datetime import datetime
+from enum import Enum
+from typing import Union
 
 from overpy import Overpass, Result
 from shapely.geometry import MultiPolygon, Polygon
@@ -69,12 +71,60 @@ class QueryPreamble:
         return "".join(parts) + ";"
 
 
+class QuickTags(Enum):
+    """Enumeration of allowed quick tags for Overpass queries.
+
+    This enum defines a set of predefined tags commonly used in Overpass queries
+    for querying OpenStreetMap data. Each enum member represents a specific
+    category or type of place, and contains a list of one or more OSM tags
+    associated with that category.
+
+    Available quick tags:
+    - RESTAURANT: Queries for restaurants
+    - FOOD_COURT: Queries for food courts
+    - CAFE: Queries for cafes
+    - FAST_FOOD: Queries for fast food establishments
+    - BAR: Queries for bars
+    - PUB: Queries for pubs
+    - ICE_CREAM: Queries for ice cream shops
+    - BIERGARTEN: Queries for beer gardens
+    - OUTDOOR_SEATING: Queries for outdoor seating areas
+    - ALL_FOOD: Queries for all food-related establishments (combines all of the above)
+
+    Each quick tag can be used to simplify the process of querying specific
+    types of places without manually specifying the OSM tags.
+    """
+
+    RESTAURANT = "[amenity=restaurant]"
+    FOOD_COURT = "[amenity=food_court]"
+    CAFE = "[amenity=cafe]"
+    FAST_FOOD = "[amenity=fast_food]"
+    BAR = "[amenity=bar]"
+    PUB = "[amenity=pub]"
+    ICE_CREAM = "[amenity=ice_cream]"
+    BIERGARTEN = "[amenity=biergarten]"
+    OUTDOOR_SEATING = "[leisure=outdoor_seating]"
+
+    ALL_FOOD = [
+        "[amenity=restaurant]",
+        "[amenity=food_court]",
+        "[amenity=cafe]",
+        "[amenity=fast_food]",
+        "[amenity=bar]",
+        "[amenity=pub]",
+        "[amenity=ice_cream]",
+        "[amenity=biergarten]",
+        "[leisure=outdoor_seating]",
+    ]
+
+
 class OverpassQuery:
     """A class for building and sending Overpass API queries.
 
     Args:
         polygon (MultiPolygon | Polygon): The polygon to query.
-        tags (list[str] | str | None): Optional. The tags to query. Returns OSM objects that match any tag in the list.
+        quick_tags (QuickTags | str | None): Optional. The quick tags to query.
+        customized_filters (list[str] | str | None): Optional. The customized filters to query.
         timeout (int | None): Optional. The timeout for the query in seconds.
         maxsize (int | None): Optional. The maximum size for the query response in bytes.
         date (datetime | None): Optional. The date for attic (historical) data retrieval.
@@ -93,13 +143,20 @@ class OverpassQuery:
     def __init__(
         self,
         polygon: MultiPolygon | Polygon,
-        tags: list[str] | str | None = None,
+        quick_tags: Union[QuickTags, str, None] = None,
+        customized_filters: list[str] | str | None = None,
         timeout: int | None = None,
         maxsize: int | None = None,
         date: datetime | None = None,
     ):
         self.preamble = QueryPreamble(timeout, maxsize, date)
-        self.body = QueryBody(polygon, tags)
+        if quick_tags is not None:
+            if isinstance(quick_tags, QuickTags):
+                self.body = QueryBody(polygon, quick_tags.value)
+            else:
+                self.body = QueryBody(polygon, QuickTags[quick_tags.upper()].value)
+        else:
+            self.body = QueryBody(polygon, customized_filters)
         self.epilogue = "out body;"
 
     def query(self) -> str:
